@@ -1,6 +1,7 @@
 APPNAME=jobsika
 E2ETEST_DEPS=./e2etests/node_modules
 GOOSE_VERSION=v3.26.0
+ERRCHECK_VERSION=v1.6.3
 # use the docker compose v2 plugin, fallback to the legacy docker-compose binary
 DOCKER_COMPOSE ?= $(shell docker compose version > /dev/null 2>&1 && echo 'docker compose' || echo docker-compose)
 
@@ -155,7 +156,7 @@ install-deps:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.23.8
 	@echo "golangci installed!"
 	@echo "installing errcheck..."
-	go install github.com/kisielk/errcheck@latest
+	go install github.com/kisielk/errcheck@$(ERRCHECK_VERSION)
 	@echo "errcheck installed!"
 	@echo "installing goose..."
 	go install github.com/pressly/goose/v3/cmd/goose@$(GOOSE_VERSION)
@@ -170,7 +171,7 @@ ifeq (, $(shell which golangci-lint))
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.23.8
 endif
 ifeq (, $(shell which errcheck))
-	go install github.com/kisielk/errcheck@latest
+	go install github.com/kisielk/errcheck@$(ERRCHECK_VERSION)
 endif
 
 ## lint: run linters over the entire code base
