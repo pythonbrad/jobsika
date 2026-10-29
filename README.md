@@ -3,6 +3,19 @@ JobSika is a website that allows people to anonymously rate their companies and 
 
 ### HOW TO CONTRIBUTE TO JobSika
 
+#### Quick start with Docker
+
+The only requirement is [docker](https://docs.docker.com/get-docker/) with the compose plugin (v2.24+).
+From the root of the repository:
+
+- Run the whole stack (database, migrations + fixtures, api and frontend): `docker compose up --build`
+  - api: http://localhost:7000/
+  - frontend: http://localhost:3000/
+- Run the frontend dev server (hot reload) instead of the built one: `docker compose --profile dev up frontend-dev`
+- Stop everything and delete the database: `docker compose --profile dev down -v`
+
+Payments are disabled unless you copy `backend/.opencollective-env-example` to `backend/.opencollective-env` and fill it.
+
 #### First you will need to run the application locally and install dependancies.
 
 To run the application locally, you should:
@@ -26,7 +39,10 @@ To run the application locally, you should:
 
 **How to create a new table:** [how-to-add-a-new-table.md](./docs/how-to-add-a-new-table.md)
 
+- Run the end to end tests in docker: `make docker-e2etest`
+
 - Jump to the ./frontend folder: cd ./frontend
+- Use Node.js v16 (see `.nvmrc`, e.g. `nvm use`)
 - Install the dependencies: `npm install` or `yarn install`
 - Run the app: `npm run dev` or `yarn dev`
 - Now that the application is running, you can access it through http://localhost:3000/

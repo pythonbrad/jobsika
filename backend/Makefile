@@ -1,10 +1,13 @@
 APPNAME=jobsika
 E2ETEST_DEPS=./e2etests/node_modules
+GOOSE_VERSION=v3.26.0
+# use the docker compose v2 plugin, fallback to the legacy docker-compose binary
+DOCKER_COMPOSE ?= $(shell docker compose version > /dev/null 2>&1 && echo 'docker compose' || echo docker-compose)
 
 .DEFAULT_GOAL := help
 
 define install_goose
-	go install github.com/pressly/goose/v3/cmd/goose@latest
+	go install github.com/pressly/goose/v3/cmd/goose@$(GOOSE_VERSION)
 endef
 
 
@@ -53,8 +56,9 @@ $(E2ETEST_DEPS):
 
 ## docker-e2etest: run e2etests in a docker compose
 docker-e2etest: $(E2ETEST_DEPS)
-	-rm -rf postgres-data
-	docker-compose -f docker-compose.test.yml up --abort-on-container-exit --exit-code-from e2etests
+	$(DOCKER_COMPOSE) -f docker-compose.test.yml up --build -d api && \
+	$(DOCKER_COMPOSE) -f docker-compose.test.yml run --rm --no-deps e2etests; \
+	status=$$?; $(DOCKER_COMPOSE) -f docker-compose.test.yml down; exit $$status
 
 ## docker-build: build the api docker image
 .PHONY: docker-build
@@ -96,17 +100,16 @@ endif
 
 ## start-api: starts the api and its dependencies in a docker container
 start-api:
-	docker-compose up
+	$(DOCKER_COMPOSE) up --build
 
 ## stop-api: stops the api and its dependencies in a docker container
 stop-api:
-	docker-compose down && \
-	rm -rf postgres-data
+	$(DOCKER_COMPOSE) down -v
 
 ## start-postgres: starts postgres sql, setup and populate yotas database
 start-postgres:
-	docker-compose up start-postgres
-	docker-compose logs -f
+	$(DOCKER_COMPOSE) up --build -d start-postgres
+	$(DOCKER_COMPOSE) logs -f
 
 ## connect-postgres: connect to postgres sql
 connect-postgres:
@@ -132,8 +135,7 @@ reset-postgres:
 
 ## stop-postgres: remove local postgres-data and teardown postgres
 stop-postgres:
-	docker-compose down && \
-	rm -rf postgres-data
+	$(DOCKER_COMPOSE) down -v
 
 .PHONY:check-swagger
 check-swagger:
@@ -156,7 +158,7 @@ install-deps:
 	go install github.com/kisielk/errcheck@latest
 	@echo "errcheck installed!"
 	@echo "installing goose..."
-	go install github.com/pressly/goose/v3/cmd/goose@latest
+	go install github.com/pressly/goose/v3/cmd/goose@$(GOOSE_VERSION)
 	@echo "goose installed!"
 	@echo "installing swagger..."
 	go install github.com/go-swagger/go-swagger/cmd/swagger@latest

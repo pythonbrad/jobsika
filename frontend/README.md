@@ -2,7 +2,8 @@
 
 ### Dependencies
 
-Make sure you are using Node.js v14. You can use [nvm](https://github.com/nvm-sh/nvm) to manage multiple Node.js versions.
+Make sure you are using Node.js v16 (see `.nvmrc`). Newer versions are not supported by the Nuxt 2 dependencies.
+You can also run the dev server in docker from the root of the repository: `docker compose --profile dev up frontend-dev`. You can use [nvm](https://github.com/nvm-sh/nvm) to manage multiple Node.js versions.
 
 ### Run the frontend
 
